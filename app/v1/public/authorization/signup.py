@@ -9,7 +9,6 @@ from pydantic import (
     validator
 )
 import re
-import json
 from app.v1.api.database_user_api import (
     insert_user,
     user_exist
