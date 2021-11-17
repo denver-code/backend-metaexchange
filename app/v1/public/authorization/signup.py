@@ -34,6 +34,6 @@ class User(BaseModel):
         return v
 
 
-@signup.post("/", dependencies=[Depends(login_required), Depends(RateLimiter(times=1, seconds=5))])
+@signup.post("/", dependencies=[Depends(RateLimiter(times=1, seconds=5))])
 async def signup_event(user: User):
     return user
