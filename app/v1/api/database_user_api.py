@@ -6,12 +6,7 @@ async def user_exist(email):
 
 
 async def insert_user(user_object):
-    return bool(await users.insert_one({
-        "email": user_object["email"],
-        "password": user_object["password"],
-        "wallets": [],
-        "history": []
-    }))
+    return bool(await users.insert_one(user_object))
 
 
 async def backup_user(user):
