@@ -4,43 +4,29 @@ from fastapi import (
     HTTPException
 )
 from fastapi_limiter.depends import RateLimiter
-from pydantic import (
-    BaseModel,
-    validator
-)
-import re
+import jwt
+import os
 from app.v1.api.database_user_api import (
     insert_user,
     user_exist
 )
+from uuid import uuid4
+from app.v1.schemas.user import User
 
 signup = APIRouter(prefix="/signup")
 
 
-class User(BaseModel):
-    email: str
-    password: str
-    wallets: list
-    history: list
-
-    @validator("email")
-    def email_regex(cls, v):
-        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-        if not re.fullmatch(regex, v):
-            raise ValueError("Invalid email")
-        return v
-
-    @validator("password")
-    def password_hash_checker(cls, v):
-        regex = r"^[a-fA-F0-9]{64}$"
-        if not re.fullmatch(regex, v):
-            raise ValueError("Need hashed password")
-        return v
-
-
 @signup.post("/", dependencies=[Depends(RateLimiter(times=1, seconds=5))])
 async def signup_event(user: User):
-    user_dict = user.dict()
-    if not await user_exist(user_dict["email"]):
-        return await insert_user(user_dict)
+    user = User(email=user.email,
+                password=user.password,
+                sessions=[str(uuid4())]).dict()
+    if not await user_exist(user["email"]):
+        if not await insert_user(user):
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+        token = jwt.encode({
+                    "email": user["email"],
+                    "session": user["sessions"][0]
+                }, os.getenv('SECRET_JWT', "YOURTOKENHERE"), algorithm="HS256")
+        return {"token": token}
     raise HTTPException(status_code=403, detail="User already exist")
