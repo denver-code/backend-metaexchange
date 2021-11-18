@@ -19,7 +19,7 @@ async def get_user(email):
 
 
 async def update_user(email, new_data):
-    return await globals()[db].update_one({"email":email}, {"$set": new_data}, upsert=True)
+    return await users.update_one({"email":email}, {"$set": new_data}, upsert=True)
 
 
 async def delete_user(email):
