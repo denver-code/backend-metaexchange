@@ -7,7 +7,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_limiter import FastAPILimiter
 
-import node.v1 as v1
+import p2pnode.v1 as v1
 
 app = FastAPI(title="MetaExchange Node", debug=True)
 

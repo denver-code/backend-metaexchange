@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from node.v1.public import public
-from node.v1.private import private
+from p2pnode.v1.public import public
+from p2pnode.v1.private import private
 
 v1 = APIRouter()
 
