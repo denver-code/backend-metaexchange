@@ -1,4 +1,5 @@
 import aioredis
+import requests
 
 from fastapi import (
     FastAPI,
@@ -10,6 +11,9 @@ import node.v1 as v1
 
 app = FastAPI(title="MetaExchange Node", debug=True)
 
+HOST = "127.0.0.1:8000"
+NODE_HOST = "127.0.0.1:8001"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,7 +24,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
+    requests.post(f'http://{HOST}/api/v1/blockchain/nodes/register', json={"nodes":[NODE_HOST]})
     redis = await aioredis.create_redis_pool("redis://localhost")
     await FastAPILimiter.init(redis)
 
-app.include_router(v1.api, prefix="/node")
+app.include_router(v1.v1, prefix="/node")
